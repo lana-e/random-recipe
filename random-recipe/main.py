@@ -1,9 +1,10 @@
 ## INITIAL DEPLOYMENT CODE FROM GCLOUD TUTORIAL
 import datetime
-
-from flask import Flask, render_template
-
+from flask import Flask, render_template, request
 from google.cloud import datastore
+## FIREBASE IMPORTS
+from google.auth.transport import requests
+import google.oauth2.id_token
 
 
 ## DATASTORE CODE FROM GCLOUD TUTORIAL
@@ -27,17 +28,54 @@ def fetch_times(limit):
     times = query.fetch(limit=limit)
     return times
 
+
+## FIREBASE CODE
+firebase_request_adapter = requests.Request()
 @app.route('/')
 def root():
-    # Store the current access time in Datastore.
-    store_time(datetime.datetime.now(tz=datetime.timezone.utc))
+    # Verify Firebase auth.
+    id_token = request.cookies.get("token")
+    error_message = None
+    claims = None
+    times = None
 
-    # Fetch the most recent 10 access times from Datastore.
-    times = fetch_times(10)
-    # print(times)
+    if id_token:
+        try:
+            # Verify the token against the Firebase Auth API. This example
+            # verifies the token on each page load. For improved performance,
+            # some applications may wish to cache results in an encrypted
+            # session store (see for instance
+            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
+            claims = google.oauth2.id_token.verify_firebase_token(
+                id_token, firebase_request_adapter)
+        except ValueError as exc:
+            # This will be raised if the token is expired or any other
+            # verification checks fail.
+            error_message = str(exc)
+
+        # Record and fetch the recent times a logged-in user has accessed
+        # the site. This is currently shared amongst all users, but will be
+        # individualized in a following step.
+        store_time(datetime.datetime.now(tz=datetime.timezone.utc))
+        times = fetch_times(10)
 
     return render_template(
-        'index.html', times=times)
+        'index.html',
+        user_data=claims, error_message=error_message, times=times)
+
+
+## REPLACED WITH FIREBASE CODE ABOVE
+# @app.route('/')
+# def root():
+#     # Store the current access time in Datastore.
+#     store_time(datetime.datetime.now(tz=datetime.timezone.utc))
+
+#     # Fetch the most recent 10 access times from Datastore.
+#     times = fetch_times(10)
+#     # print(times)
+
+#     return render_template(
+#         'index.html', times=times)
 
 
 ## REPLACED WITH DATASTORE CODE ABOVE

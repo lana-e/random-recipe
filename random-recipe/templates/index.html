@@ -17,19 +17,54 @@
 
 <html>
 <head>
+<!-- DEFAULT PROJECT CODE -->
   <title>Datastore and Firebase Auth Example</title>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!-- FIREBASE CODE -->
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
 </head>
 <body>
+<!-- THE TUTORIAL DOESN'T USE FIREBASE V9 MODULAR SDK AND IS NOT COMPATIBLE -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPkP7jh7SFkMIpEVpOs27344JhIyvcFzY",
+      authDomain: "random-recipes-379520.firebaseapp.com",
+      projectId: "random-recipes-379520",
+      storageBucket: "random-recipes-379520.appspot.com",
+      messagingSenderId: "870795797907",
+      appId: "1:870795797907:web:ab549db84266b4cf87f466",
+      measurementId: "G-RLGTS5XR3E"
+    };
 
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+<!-- FIREBASE CODE REPLACED DATASTORE -->
   <h1>Datastore and Firebase Auth Example</h1>
-    
-<!-- DATASTORE CODE -->
-  <h2>Last 10 visits</h2>
-  {% for time in times %}
-    <p>{{ time['timestamp'] }}</p>
-  {% endfor %}
 
+  <div id="firebaseui-auth-container"></div>
+
+  <button id="sign-out" hidden=true>Sign Out</button>
+
+  <div id="login-info" hidden=true>
+    <h2>Login info:</h2>
+    {% if user_data %}
+      <dl>
+        <dt>Name</dt><dd>{{ user_data['name'] }}</dd>
+        <dt>Email</dt><dd>{{ user_data['email'] }}</dd>
+        <dt>Last 10 visits</dt><dd>
+          {% for time in times %}
+            <p>{{ time['timestamp'] }}</p>
+          {% endfor %} </dd>
+      </dl>
+    {% elif error_message %}
+      <p>Error: {{ error_message }}</p>
+    {% endif %}
+  </div>
 </body>
 </html>
