@@ -51,6 +51,26 @@ def fetch_times(email, limit):
 #     return times
 
 
+## RANDOM RECIPES CODE
+import random
+import pandas as pd
+
+# initializing set of dishes
+dishes = set()
+
+# defining sample set of dishes
+sample_dishes = {
+    "sinigang", "posole", "japanese curry", "spaghetti",
+    "steak alfredo", "lamb chops", "ramen", "gochujang chicken",
+    "steak", "bacon mac", "pancakes", "pork belly",
+    "kielbasa", "15 bean soup", "pesto", "chicken wings",
+}
+dishes = dishes.union(sample_dishes)
+
+
+## END RANDOM RECIPES CODE
+
+
 ## FIREBASE USER-SPECIFIC CODE
 firebase_request_adapter = requests.Request()
 @app.route('/')
@@ -146,7 +166,7 @@ def root():
 #     return render_template('index.html', times=dummy_times)
 
 
-## CODE FROM INITIAL DEPLOYMENT
+## CODE FOR LOCAL DEPLOYMENT
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
