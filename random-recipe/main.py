@@ -5,6 +5,8 @@ from google.cloud import datastore
 ## FIREBASE IMPORTS
 from google.auth.transport import requests
 import google.oauth2.id_token
+## RECIPE INTEGRATION IMPORTS
+import jinja2
 
 
 ## DATASTORE CODE FROM GCLOUD TUTORIAL
@@ -53,7 +55,6 @@ def fetch_times(email, limit):
 
 ## RANDOM RECIPES CODE
 import random
-import pandas as pd
 
 # initializing set of dishes
 dishes = set()
@@ -67,6 +68,39 @@ sample_dishes = {
 }
 dishes = dishes.union(sample_dishes)
 
+# defining and adding a user-inputted dish
+# new_dishes = input('Type some dishes you know how to cook, separated by commas, and press Enter (e.g., "sinigang, posole, japanese curry"):')
+new_dishes = "couscous, pork belly adobo"
+new_dishes_list = new_dishes.split(",")
+new_dishes_list = [dish.strip().lower() for dish in new_dishes_list]
+dishes = dishes.union(new_dishes_list)
+
+# asking user for number of dishes to sample
+# num_dishes = input("How many meals are you looking to cook?")
+num_dishes = 3
+
+# random dish selection should be done on frontend
+# num_input = False
+# while not num_input:
+#     try:
+#         num_dishes = int(num_dishes)
+#         num_input = True
+#     except ValueError:
+#         # num_dishes = input("Please input a number:")
+#         num_dishes = 1
+#         num_input = True
+# # printing random dishes to cook
+# random_dishes = random.sample(tuple(dishes), k=num_dishes)
+# print(f"Here are some meal suggestions!")
+# for num, dish in enumerate(random_dishes):
+#     print(f"{num+1}: {dish}")
+
+# function to randomize order of dishes for jinja filter
+def get_random_dishes(dishes, num_dishes):
+    return random.sample(tuple(dishes), k=num_dishes)
+
+# registering get_random_dishes() in environment
+app.jinja_env.filters["get_random_dishes"] = get_random_dishes
 
 ## END RANDOM RECIPES CODE
 
@@ -80,6 +114,7 @@ def root():
     error_message = None
     claims = None
     times = None
+    # dishes = None
 
     if id_token:
         try:
@@ -90,7 +125,7 @@ def root():
             # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
             claims = google.oauth2.id_token.verify_firebase_token(
                 id_token, firebase_request_adapter)
-
+            
             store_time(claims['email'], datetime.datetime.now(tz=datetime.timezone.utc))
             times = fetch_times(claims['email'], 10)
 
@@ -101,7 +136,7 @@ def root():
 
     return render_template(
         'index.html',
-        user_data=claims, error_message=error_message, times=times)
+        user_data=claims, error_message=error_message, times=times, dishes=dishes, num_dishes=num_dishes)
 
 
 ## FIREBASE CODE, REPLACED WITH FIREBASE USER-SPECIFIC CODE ABOVE

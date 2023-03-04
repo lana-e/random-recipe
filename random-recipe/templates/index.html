@@ -66,5 +66,17 @@
       <p>Error: {{ error_message }}</p>
     {% endif %}
   </div>
+<hr/>
+  <div id="recipe-num">
+    <label for="num-dishes">How many dishes do you want to cook? Enter a number:</label>
+    <input type="text" id="num-dishes" name="num-dishes">
+    <input type="submit" name="num-submit" value="Enter">
+  </div>
+  <div id="recipes">
+    {% set random_dishes = dishes|get_random_dishes(num_dishes) %}
+    {% for dish in random_dishes %}
+      <p>{{ dish }}</p>
+    {% endfor %}
+  </div>
 </body>
 </html>
